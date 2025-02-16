@@ -7,64 +7,43 @@ import logger from './logger.js';
 
 export const labelerServer = new LabelerServer({ did: DID, signingKey: SIGNING_KEY });
 
-export const label = (did: string, rkey: string, negate: boolean) => {
-  logger.info(`Received subject: ${did} with rkey: ${rkey} and negate: ${negate}`);
+export const label = (did: string, subject: string, negate: boolean) => {
+  logger.info(`Received subject: ${did} with subject: ${subject} and negate: ${negate}`);
 
-  if (rkey === 'self') {
-    logger.info(`${did} liked the labeler. Returning.`);
-    return;
-  }
   try {
-    const labels = fetchCurrentLabels(did);
-
     if (negate) {
-      deleteAllLabels(did, labels);
+      deleteLabel(did, subject);
     } else {
-      addOrUpdateLabel(did, rkey, labels);
+      addOrUpdateLabel(did, subject);
     }
   } catch (error) {
     logger.error(`Error in \`label\` function: ${error}`);
   }
 };
 
-function fetchCurrentLabels(did: string) {
-  const query = labelerServer.db
-    .prepare<string[]>(`SELECT * FROM labels WHERE uri = ?`)
-    .all(did) as ComAtprotoLabelDefs.Label[];
+function deleteLabel(did: string, subject: string) {
+  const delLabel = LABELS.find((label) => label.subject === subject);
 
-  const labels = query.reduce((set, label) => {
-    if (!label.neg) set.add(label.val);
-    else set.delete(label.val);
-    return set;
-  }, new Set<string>());
-
-  if (labels.size > 0) {
-    logger.info(`Current labels: ${Array.from(labels).join(', ')}`);
-  }
-
-  return labels;
-}
-
-function deleteAllLabels(did: string, labels: Set<string>) {
-  const labelsToDelete: string[] = Array.from(labels);
-
-  if (labelsToDelete.length === 0) {
+  if (!delLabel || delLabel.identifier.length === 0) {
     logger.info(`No labels to delete`);
-  } else {
-    logger.info(`Labels to delete: ${labelsToDelete.join(', ')}`);
-    try {
-      labelerServer.createLabels({ uri: did }, { negate: labelsToDelete });
-      logger.info('Successfully deleted all labels');
-    } catch (error) {
-      logger.error(`Error deleting all labels: ${error}`);
-    }
+    return;
+  }
+
+  const labelToDelete: string[] = [delLabel.identifier];
+
+  logger.info(`Labels to delete: ${labelToDelete.join(', ')}`);
+  try {
+    labelerServer.createLabels({ uri: did }, { negate: labelToDelete });
+    logger.info('Successfully deleted all labels');
+  } catch (error) {
+    logger.error(`Error deleting all labels: ${error}`);
   }
 }
 
-function addOrUpdateLabel(did: string, rkey: string, labels: Set<string>) {
-  const newLabel = LABELS.find((label) => label.rkey === rkey);
+function addOrUpdateLabel(did: string, subject: string) {
+  const newLabel = LABELS.find((label) => label.subject === subject);
   if (!newLabel) {
-    logger.warn(`New label not found: ${rkey}. Likely liked a post that's not one for labels.`);
+    logger.warn(`New label not found: ${subject}. Likely liked a post that's not one for labels.`);
     return;
   }
   logger.info(`New label: ${newLabel.identifier}`);

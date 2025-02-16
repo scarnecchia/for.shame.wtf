@@ -1,11 +1,12 @@
 import { CommitCreateEvent, CommitDeleteEvent, Jetstream } from '@skyware/jetstream';
 import fs from 'node:fs';
 
-import { CURSOR_UPDATE_INTERVAL, FIREHOSE_URL, HOST, METRICS_PORT, PORT, TARGET, WANTED_COLLECTION } from './config.js';
+import { CURSOR_UPDATE_INTERVAL, FIREHOSE_URL, HOST, METRICS_PORT, PORT, WANTED_COLLECTION } from './config.js';
 import { label, labelerServer } from './label.js';
 import logger from './logger.js';
 import { startMetricsServer } from './metrics.js';
-import { labeledAccount, unlabeledAccount } from './store.js';
+import { findLabeledAccount, labeledAccount } from './store.js';
+import { LABELS } from './constants.js';
 
 let cursor = 0;
 let cursorUpdateInterval: NodeJS.Timeout;
@@ -59,30 +60,23 @@ jetstream.on('error', (error) => {
 });
 
 jetstream.onCreate(WANTED_COLLECTION, (event: CommitCreateEvent<typeof WANTED_COLLECTION>) => {
+    const TARGETS = LABELS.map((label) => label.subject);
+
   // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  if (event.commit?.record?.subject === TARGET) {
+  if (TARGETS.includes(event.commit?.record?.subject)) {
     label(event.did, event.commit.record.subject!, false);
     labeledAccount(event.did, event.commit.record.subject!, event.commit.rkey!, false);
   }
 });
 
-jetstream.onDelete(WANTED_COLLECTION, (event: CommitDeleteEvent<typeof WANTED_COLLECTION>) => {
-  if (fs.existsSync('labeled.json')) {
-    const fileContent = fs.readFileSync('labeled.json', 'utf8');
-    if (fileContent.trim()) {
-      // Check if the file is not blank
-      try {
-        const labeled: Labeled[] = JSON.parse(fileContent);
-        const matchingRecord = labeled.find((record) => record.did === event.did && record.rkey === event.commit.rkey);
-        if (matchingRecord) {
-          label(event.did, matchingRecord.subject!, true);
-          labeledAccount(event.did, matchingRecord.subject!, event.commit.rkey!, true);
-        }
-      } catch (err) {
-        console.error('Error parsing JSON file:', err);
-      }
+jetstream.onDelete(WANTED_COLLECTION, async (event: CommitDeleteEvent<typeof WANTED_COLLECTION>) => {
+
+    const result = await findLabeledAccount(event.did, event.commit.rkey!);
+
+    if (result) {
+        label(result.did, result.subject, true);
+        labeledAccount(result.did, result.subject, result.rkey, true);
     }
-  }
 });
 
 const metricsServer = startMetricsServer(METRICS_PORT);
