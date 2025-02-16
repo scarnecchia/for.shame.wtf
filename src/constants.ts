@@ -1,13 +1,8 @@
 import { Label } from "./types.js";
 
-export const TARGET = [
-  "did:plc:5prledmu36imun2zjc26v5nl",
-  "did:plc:yzmo3kmhhazep4mbfapy2mng",
-];
-
 export const LABELS: Label[] = [
   {
-    rkey: "did:plc:5prledmu36imun2zjc26v5nl",
+    subject: "did:plc:5prledmu36imun2zjc26v5nl",
     identifier: "mattyglesias-follower",
     locales: [
       {
@@ -19,7 +14,7 @@ export const LABELS: Label[] = [
     ],
   },
   {
-    rkey: "did:plc:yzmo3kmhhazep4mbfapy2mng",
+    subject: "did:plc:yzmo3kmhhazep4mbfapy2mng",
     identifier: "mattstoller-follower",
     locales: [
       {
@@ -27,6 +22,18 @@ export const LABELS: Label[] = [
         name: "Matthew Stoller Follower",
         description:
           "This user follows Matthew Stoller. This label can be removed by unfollowing Matthew Stoller.",
+      },
+    ],
+  },
+  {
+    subject: "did:plc:we4wy7wmwyg7ojhkeoygy2qo",
+    identifier: "jonathanchait-follower",
+    locales: [
+      {
+        lang: "en",
+        name: "Jonathan Chait Follower",
+        description:
+          "This user follows Jonathan Chait. This label can be removed by unfollowing Jonathan Chait.",
       },
     ],
   },

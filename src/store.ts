@@ -1,54 +1,76 @@
-import { readFile, writeFile, writeFileSync } from 'node:fs';
+import { resourceLimits } from "worker_threads";
+import dbPromise from "./db.js";
 
-import { Labeled } from './types.js';
-
-export const labeledAccount = (did: string, subject: string, rkey: string, isDelete: boolean) => {
-  console.log(`${did} has been labeled for following ${subject} with rkey ${rkey}`);
+export const labeledAccount = (
+  did: string,
+  subject: string,
+  rkey: string,
+  isDelete: boolean
+) => {
+  console.log(
+    `${did} has been labeled for following ${subject} with rkey ${rkey}`
+  );
 
   try {
     if (isDelete) {
-      deleteLabeledAccount(did);
+      deleteLabeledAccount(did, rkey);
     } else {
       addLabeledAccount(did, subject, rkey);
     }
   } catch (e) {
-    console.log('Error:', e);
+    console.log("Error:", e);
   }
 };
 
-function addLabeledAccount(did: string, subject: string, rkey: string) {
-  const labeled: Labeled[] = [
-    {
-      did,
-      subject,
-      rkey,
-    },
-  ];
+async function addLabeledAccount(did: string, subject: string, rkey: string) {
+  const db = await dbPromise;
 
   try {
-    writeFileSync('labeled.json', JSON.stringify(labeled, null, 2));
-    console.log('Successfully wrote file');
+    await db.run(
+      "INSERT INTO labeled (did, subject, rkey) VALUES (?, ?, ?)",
+      did,
+      subject,
+      rkey
+    );
+    console.log("Successfully saved to the database");
   } catch (err) {
-    console.log('Error writing file:', err);
+    console.log("Error saving to the database:", err);
   }
 }
 
-function deleteLabeledAccount(did: string) {
-  readFile('labeled.json', 'utf8', (err, data) => {
-    if (err) {
-      console.log('Error reading file:', err);
-      return;
+async function deleteLabeledAccount(did: string, subject: string) {
+  const db = await dbPromise;
+
+  try {
+    const result = await db.run(
+      "DELETE FROM labeled WHERE did = ? AND subject = ?",
+      did,
+      subject
+    );
+    if (result.changes > 0) {
+      console.log("Successfully deleted the labeled account");
+    } else {
+      console.log("No labeled account found to delete");
     }
+  } catch (err) {
+    console.log("Error deleting from the database:", err);
+  }
+}
 
-    let labeledArray: Labeled[] = JSON.parse(data) as Labeled[];
-    labeledArray = labeledArray.filter((item) => item.did !== did);
+export async function findLabeledAccount(did: string, rkey: string) {
+  const db = await dbPromise;
+  try {
+    const result = await db.get(
+      "SELECT * FROM labeled WHERE did = ? AND rkey = ?",
+      did,
+      rkey
+    );
 
-    writeFile('labeled.json', JSON.stringify(labeledArray, null, 2), (err) => {
-      if (err) {
-        console.log('Error writing file:', err);
-      } else {
-        console.log('Successfully updated file');
-      }
-    });
-  });
+    if (result) {
+      console.log("Labeled account found:", result);
+      return result;
+    }
+  } catch (err) {
+    console.log("Error querying the database:", err);
+  }
 }
