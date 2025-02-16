@@ -37,4 +37,16 @@ export const LABELS: Label[] = [
       },
     ],
   },
+  {
+    subject: "did:plc:35r2ahxhs27fdqh7zehghz5j",
+    identifier: "briannawu-follower",
+    locales: [
+      {
+        lang: "en",
+        name: "Brianna Wu Follower",
+        description:
+          "This user follows Brianna Wu. This label can be removed by unfollowing Brianna Wu.",
+      },
+    ],
+  },
 ];
