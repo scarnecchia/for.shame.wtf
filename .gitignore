@@ -6,3 +6,4 @@ labels.db*
 bun.lockb
 database.db*
 .DS_Store
+*.db
