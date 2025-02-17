@@ -1,31 +1,42 @@
 import { label } from "./../label.js";
-import dbPromise from "./db.js";
+import bfPromise from "./db.js";
 import { LABELS } from "./../constants.js";
 import { getFollowers } from "./getFollowers.js";
 import { getFollows } from "./getFollows.js";
+import { appendData } from "./append.js";
+import logger from "../logger.js";
 
-const TARGETS = LABELS.map((label) => label.subject);
+export const main = async () => {
+  const TARGETS = LABELS.map((label) => label.subject);
 
-for (const target of TARGETS) {
-  await getFollowers(target);
+  for (const target of TARGETS) {
+    await getFollowers(target);
 
-  const db = await dbPromise;
+    const db = await bfPromise;
+    const dids = await db.all(
+      "SELECT did FROM followers WHERE subject = ?",
+      target
+    );
 
-  const dids = await db.all(
-    "SELECT did FROM follower WHERE subject = ?",
-    target
-  );
+    for (const { did } of dids) {
+      await getFollows(did, target);
+    }
 
-  for (const { did } of dids) {
-    await getFollows(did, target);
+    const didToLabel = await db.get(
+      "SELECT did FROM followers WHERE subject = ? AND rkey IS NOT NULL",
+      target
+    );
+
+    for (const { didLabel } of didToLabel) {
+      label(didLabel, target, false);
+    }
   }
 
-  const didToLabel = await db.all(
-    "SELECT did FROM follower WHERE subject = ? AND rkey IS NOT NULL",
-    target
-  );
+  await appendData();
+};
 
-  for (const { didLabel } of didToLabel) {
-    label(didLabel, target, false);
-  }
+try {
+  main().then(() => logger.info("Backfill completed"));
+} catch (e) {
+  logger.info("Error:", e);
 }

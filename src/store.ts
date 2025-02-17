@@ -1,4 +1,3 @@
-import { resourceLimits } from "worker_threads";
 import dbPromise from "./db.js";
 
 export const labeledAccount = (
