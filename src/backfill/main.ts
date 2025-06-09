@@ -18,17 +18,16 @@ export const main = async () => {
       target,
     );
 
-    const getFollowsPromises = dids.map(({ did }) => {
-      return getFollows(did, target).catch((error) => {
-        // The try/catch you added previously would be here
+    for (const { did } of dids) {
+      try {
+        await getFollows(did, target);
+      } catch (error) {
         logger.error(
-          `Error processing did ${did} for target ${target} in getFollows: ${error}`,
+          `Error processing did ${did} for target ${target}: ${error}`,
         );
-        // Optionally, you can return a specific marker for failed promises
-        // if you need to distinguish them after Promise.all resolves
-      });
-    });
-    await Promise.all(getFollowsPromises);
+        // The loop will continue to the next did
+      }
+    }
 
     const didToLabel = await db.get(
       "SELECT did FROM followers WHERE subject = ? AND rkey IS NOT NULL",
