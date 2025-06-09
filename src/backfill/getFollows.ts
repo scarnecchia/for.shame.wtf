@@ -17,21 +17,27 @@ export const getFollows = async (did: string, subject: string) => {
     service: await getPDS(did),
   });
 
-  get.login({
+  await get.login({
     identifier: BSKY_IDENTIFIER,
     password: BSKY_PASSWORD,
   });
 
   try {
     do {
-      const follows = await limit(() =>
-        get.com.atproto.repo.listRecords({
-          repo: did,
-          collection: "app.bsky.graph.follow",
-          limit: 100,
-          cursor: current_cursor,
-        })
-      );
+      let follows;
+      try {
+        follows = await limit(() =>
+          get.com.atproto.repo.listRecords({
+            repo: did,
+            collection: "app.bsky.graph.follow",
+            limit: 100,
+            cursor: current_cursor,
+          }),
+        );
+      } catch (error) {
+        logger.warn(`Error fetching follows for ${did}: ${error}`);
+        break;
+      }
 
       logger.info(`Fetched ${follows.data.records.length} follows`);
 
@@ -53,7 +59,7 @@ export const getFollows = async (did: string, subject: string) => {
               "UPDATE followers SET rkey = ? where did = ? and subject = ?",
               rkey,
               did,
-              subject
+              subject,
             );
             logger.info("Successfully saved to the database");
           } catch (err) {
