@@ -61,4 +61,16 @@ export const LABELS: Label[] = [
       },
     ],
   },
+  {
+    subject: "did:plc:kbmf4lv4o6uvuvrfzpw2jbhj",
+    identifier: "tomnichols-follower",
+    locales: [
+      {
+        lang: "en",
+        name: "Tom Nichols Follower",
+        description:
+          "This user follows Tom Nichols. This label can be removed by unfollowing Tom Nichols.",
+      },
+    ],
+  },
 ];
