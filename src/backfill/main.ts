@@ -1,6 +1,6 @@
 import { label } from "./../label.js";
 import bfPromise from "./db.js";
-import { LABELS } from "./../constants.js";
+import { LABELS } from "./constants.js";
 import { getFollowers } from "./getFollowers.js";
 import { getFollows } from "./getFollows.js";
 import { appendData } from "./append.js";
