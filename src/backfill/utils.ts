@@ -1,5 +1,9 @@
-export const getPDS = async (did: string) => {
-  const res = await fetch(`https://plc.directory/${did}`);
+import { plcDirectoryLimiter } from "./rateLimit.js"; // Import the new limiter
+
+export const getPDS = async (did: string): Promise<string | null> => {
+  const res = await plcDirectoryLimiter(() =>
+    fetch(`https://plc.directory/${did}`),
+  );
   if (!res.ok) throw new Error("PDS not found");
   const pds = (await res.json()) as {
     service: {

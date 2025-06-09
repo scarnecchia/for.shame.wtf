@@ -17,7 +17,7 @@ export const getFollows = async (did: string, subject: string) => {
     service: await getPDS(did),
   });
 
-  await get.login({
+  get.login({
     identifier: BSKY_IDENTIFIER,
     password: BSKY_PASSWORD,
   });
