@@ -2,14 +2,14 @@ import { Label } from "./../types.js";
 
 export const LABELS: Label[] = [
   {
-    subject: "did:plc:232eprew2nyn75ensoah2lg2",
-    identifier: "jessesingal-follower",
+    subject: "did:plc:egte2asytcqxhiqxxgrm6lfk",
+    identifier: "meganmcardle-follower",
     locales: [
       {
         lang: "en",
-        name: "Jesse Singal Follower",
+        name: "Megan McArdle Follower",
         description:
-          "This user follows Jesse Singal. This label can be removed by unfollowing Jesse Singal.",
+          "This user follows Megan McArdle. This label can be removed by unfollowing Megan McArdle.",
       },
     ],
   },

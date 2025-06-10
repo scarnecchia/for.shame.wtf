@@ -85,4 +85,16 @@ export const LABELS: Label[] = [
       },
     ],
   },
+  {
+    subject: "did:plc:kxzeslj5en7gswzyha4bwu7s",
+    identifier: "chriscillizza-follower",
+    locales: [
+      {
+        lang: "en",
+        name: "Chris Cillizza Follower",
+        description:
+          "This user follows Chris Cillizza. This label can be removed by unfollowing Chris Cillizza.",
+      },
+    ],
+  },
 ];
