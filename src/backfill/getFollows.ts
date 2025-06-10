@@ -61,8 +61,21 @@ export const getFollows = async (did: string, subject: string) => {
           }),
         );
       } catch (error) {
-        logger.warn(`Error fetching follows for ${did}: ${error}`);
-        break;
+        let errorDetails = String(error); // Default to string representation
+        if (error instanceof Error) {
+          errorDetails = `Name: ${error.name}, Message: ${error.message}`;
+          // For XRPCError, you might have more specific properties
+          if ("status" in error && "error" in error) {
+            // @ts-ignore // Assuming error might be an XRPCError like type
+            errorDetails += `, Status: ${error.status}, XRPC Error: ${error.error}`;
+          }
+        }
+        logger.warn(
+          `Error fetching follows for ${did}. Details: ${errorDetails}`,
+        );
+        // You might want to log the full error object for deep inspection in debug mode
+        // logger.debug("Full error object for listRecords:", error);
+        break; // Exits the do...while loop for this DID if listRecords fails
       }
 
       logger.info(`Fetched ${follows.data.records.length} follows`);

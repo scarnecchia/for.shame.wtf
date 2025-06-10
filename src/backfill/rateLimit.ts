@@ -6,7 +6,7 @@ export const limit = pRateLimit({
   interval: 30000, // 1000 ms == 1 second
   rate: 280, // 30 API calls per interval
   concurrency: 48, // no more than 10 running at once
-  maxDelay: 0, // an API call delayed > 30 sec is rejected
+  maxDelay: 20000, // an API call delayed > 30 sec is rejected
 });
 
 // New rate limiter for plc.directory
