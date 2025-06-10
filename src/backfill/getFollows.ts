@@ -7,24 +7,26 @@ import bfPromise from "./db.js";
 import logger from "../logger.js";
 import { getPDS } from "./utils.js";
 
+const get = new AtpAgent({
+  service: await getPDS(did),
+});
+
+const logged = () =>
+  get.login({
+    identifier: BSKY_IDENTIFIER,
+    password: BSKY_PASSWORD,
+  });
+
+export const isLogged = logged()
+  .then(() => true)
+  .catch(() => false);
+
 export const getFollows = async (did: string, subject: string) => {
   logger.info(`Searching for ${did}'s record of following ${subject}`);
   const db = await bfPromise;
+  await logged();
 
   let current_cursor: string | undefined = undefined;
-
-  try {
-    const get = new AtpAgent({
-      service: await getPDS(did),
-    });
-
-    get.login({
-      identifier: BSKY_IDENTIFIER,
-      password: BSKY_PASSWORD,
-    });
-  } catch (error) {
-    logger.error(`Error logging in to Bluesky: ${error}`);
-  }
 
   try {
     do {
