@@ -5,6 +5,11 @@ import { getFollowers } from "./getFollowers.js";
 import { getFollows } from "./getFollows.js";
 import { appendData } from "./append.js";
 import logger from "../logger.js";
+import { getPDS } from "./utils.js";
+import { setGlobalDispatcher, Agent as Agent } from "undici";
+setGlobalDispatcher(new Agent({ connect: { timeout: 20_000 } }));
+import { BSKY_IDENTIFIER, BSKY_PASSWORD, PDS } from "../config.js";
+import { AtpAgent } from "@atproto/api";
 
 export const main = async () => {
   const db = await bfPromise;
@@ -20,6 +25,22 @@ export const main = async () => {
 
     for (const { did } of dids) {
       try {
+        const get = new AtpAgent({
+          service: await getPDS(did),
+        });
+
+        const logged = () =>
+          get.login({
+            identifier: BSKY_IDENTIFIER,
+            password: BSKY_PASSWORD,
+          });
+
+        const isLogged = logged()
+          .then(() => true)
+          .catch(() => false);
+
+        await isLogged;
+
         await getFollows(did, target);
       } catch (error) {
         logger.error(

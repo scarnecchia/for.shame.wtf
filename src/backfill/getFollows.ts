@@ -5,21 +5,6 @@ import { AtpAgent } from "@atproto/api";
 import { limit } from "./rateLimit.js";
 import bfPromise from "./db.js";
 import logger from "../logger.js";
-import { getPDS } from "./utils.js";
-
-const get = new AtpAgent({
-  service: await getPDS(did),
-});
-
-const logged = () =>
-  get.login({
-    identifier: BSKY_IDENTIFIER,
-    password: BSKY_PASSWORD,
-  });
-
-export const isLogged = logged()
-  .then(() => true)
-  .catch(() => false);
 
 export const getFollows = async (did: string, subject: string) => {
   logger.info(`Searching for ${did}'s record of following ${subject}`);
