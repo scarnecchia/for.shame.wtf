@@ -5,13 +5,48 @@ import { AtpAgent } from "@atproto/api";
 import { limit } from "./rateLimit.js";
 import bfPromise from "./db.js";
 import logger from "../logger.js";
+import { getPDS } from "./utils.js";
 
 export const getFollows = async (did: string, subject: string) => {
   logger.info(`Searching for ${did}'s record of following ${subject}`);
   const db = await bfPromise;
-  await logged();
 
+  let get: AtpAgent;
+  let pdsUrl: string | null;
   let current_cursor: string | undefined = undefined;
+
+  try {
+    pdsUrl = await getPDS(did);
+
+    if (!pdsUrl) {
+      // If getPDS returns null, log it and exit this function for this DID.
+      logger.warn(
+        `Could not determine PDS for ${did}. Skipping follow check for this DID.`,
+      );
+      return; // Stop processing for this specific (did, subject) pair.
+    }
+
+    // If we get here, pdsUrl is a valid string.
+    get = new AtpAgent({
+      service: pdsUrl, // Now we know pdsUrl is a string
+    });
+
+    // Don't forget to await the login and handle its errors too!
+    await get.login({
+      identifier: BSKY_IDENTIFIER, // Make sure BSKY_IDENTIFIER is imported/defined
+      password: BSKY_PASSWORD, // Make sure BSKY_PASSWORD is imported/defined
+    });
+    logger.info(
+      `Successfully initialized and logged in for ${did} on PDS ${pdsUrl}`,
+    );
+  } catch (error) {
+    // This catches errors from getPDS itself (if it somehow still throws despite returning null)
+    // or from new AtpAgent, or from agent.login
+    logger.error(
+      `Failed to initialize AtpAgent or login for ${did} on PDS: ${error instanceof Error ? error.message : String(error)}`,
+    );
+    return; // Stop processing for this specific (did, subject) pair.
+  }
 
   try {
     do {
