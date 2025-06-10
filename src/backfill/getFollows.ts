@@ -13,14 +13,18 @@ export const getFollows = async (did: string, subject: string) => {
 
   let current_cursor: string | undefined = undefined;
 
-  const get = new AtpAgent({
-    service: await getPDS(did),
-  });
+  try {
+    const get = new AtpAgent({
+      service: await getPDS(did),
+    });
 
-  get.login({
-    identifier: BSKY_IDENTIFIER,
-    password: BSKY_PASSWORD,
-  });
+    get.login({
+      identifier: BSKY_IDENTIFIER,
+      password: BSKY_PASSWORD,
+    });
+  } catch (error) {
+    logger.error(`Error logging in to Bluesky: ${error}`);
+  }
 
   try {
     do {
