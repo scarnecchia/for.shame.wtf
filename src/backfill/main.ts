@@ -25,22 +25,6 @@ export const main = async () => {
 
     for (const { did } of dids) {
       try {
-        const get = new AtpAgent({
-          service: await getPDS(did),
-        });
-
-        const logged = () =>
-          get.login({
-            identifier: BSKY_IDENTIFIER,
-            password: BSKY_PASSWORD,
-          });
-
-        const isLogged = logged()
-          .then(() => true)
-          .catch(() => false);
-
-        await isLogged;
-
         await getFollows(did, target);
       } catch (error) {
         logger.error(
