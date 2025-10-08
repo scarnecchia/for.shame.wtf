@@ -97,4 +97,16 @@ export const LABELS: Label[] = [
       },
     ],
   },
+  {
+    subject: "did:plc:tkspefzlu72575kljanhe3uj",
+    identifier: "jdvance-follower",
+    locales: [
+      {
+        lang: "en",
+        name: "JD Vance Follower",
+        description:
+          "This user follows JD Vance. This label can be removed by unfollowing JD Vance.",
+      },
+    ],
+  },
 ];

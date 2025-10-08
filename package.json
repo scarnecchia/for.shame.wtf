@@ -14,6 +14,7 @@
     "set-db": "bunx tsx src/setup-db.ts",
     "backfill-db": "bunx tsx src/backfill/setup-db.ts",
     "backfill": "bunx tsx src/backfill/main.ts",
+    "unlabel-all": "bunx tsx src/unlabel-all.ts",
     "prepare": "bunx husky install"
   },
   "lint-staged": {
