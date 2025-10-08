@@ -49,4 +49,64 @@ export const LABELS: Label[] = [
       },
     ],
   },
+  {
+    subject: "did:plc:232eprew2nyn75ensoah2lg2",
+    identifier: "jessesingal-follower",
+    locales: [
+      {
+        lang: "en",
+        name: "Jesse Singal Follower",
+        description:
+          "This user follows Jesse Singal. This label can be removed by unfollowing Jesse Singal.",
+      },
+    ],
+  },
+  {
+    subject: "did:plc:kbmf4lv4o6uvuvrfzpw2jbhj",
+    identifier: "tomnichols-follower",
+    locales: [
+      {
+        lang: "en",
+        name: "Tom Nichols Follower",
+        description:
+          "This user follows Tom Nichols. This label can be removed by unfollowing Tom Nichols.",
+      },
+    ],
+  },
+  {
+    subject: "did:plc:egte2asytcqxhiqxxgrm6lfk",
+    identifier: "meganmcardle-follower",
+    locales: [
+      {
+        lang: "en",
+        name: "Megan McArdle Follower",
+        description:
+          "This user follows Megan McArdle. This label can be removed by unfollowing Megan McArdle.",
+      },
+    ],
+  },
+  {
+    subject: "did:plc:kxzeslj5en7gswzyha4bwu7s",
+    identifier: "chriscillizza-follower",
+    locales: [
+      {
+        lang: "en",
+        name: "Chris Cillizza Follower",
+        description:
+          "This user follows Chris Cillizza. This label can be removed by unfollowing Chris Cillizza.",
+      },
+    ],
+  },
+  {
+    subject: "did:plc:tkspefzlu72575kljanhe3uj",
+    identifier: "jdvance-follower",
+    locales: [
+      {
+        lang: "en",
+        name: "JD Vance Follower",
+        description:
+          "This user follows JD Vance. This label can be removed by unfollowing JD Vance.",
+      },
+    ],
+  },
 ];

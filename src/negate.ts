@@ -1,49 +1,30 @@
-import { CommitCreateEvent, Jetstream } from '@skyware/jetstream';
-import fs from 'node:fs';
-import * as readline from 'readline';
+import fs from "node:fs";
 
-import {
-  CURSOR_UPDATE_INTERVAL,
-  DID,
-  FIREHOSE_URL,
-  HOST,
-  METRICS_PORT,
-  PORT,
-  TARGET,
-  WANTED_COLLECTION,
-} from './config.js';
-import { labelerServer } from './label.js';
-import logger from './logger.js';
-import { startMetricsServer } from './metrics.js';
+import { label, labelerServer } from "./label.js";
+import logger from "./logger.js";
+import { findLabeledAccount, labeledAccount } from "./store.js";
+import { LABELS } from "./constants.js";
 
-// Function to process each line
-function processLine(line: string) {
-  console.log(`Processing line: ${line}`);
+const did = "did:plc:xyt4nvopdngxehb4agbav6nd";
+const rkey = "3lmtkq2qybx2j";
 
-  const did = line.trim();
+const result = await findLabeledAccount(did, rkey);
 
-  try {
-    labelerServer.createLabels({ uri: did }, { negate: ['jesse-singal-follower'] });
-    logger.info(`Successfully delete label from ${did}`);
-  } catch (error) {
-    logger.error(`Error adding new label: ${error}`);
-  } // Add your custom logic here
+if (result) {
+  logger.info(`Found labeled account for DID ${did} and RKEY ${rkey}`);
+  label(result.did, result.subject, true);
+  labeledAccount(result.did, result.subject, result.rkey, true);
 }
 
-// Function to read file line by line
-async function readFileLineByLine(filePath: string) {
-  const fileStream = fs.createReadStream(filePath);
-
-  const rl = readline.createInterface({
-    input: fileStream,
-    crlfDelay: Infinity,
-  });
-
-  for await (const line of rl) {
-    processLine(line);
+function shutdown() {
+  try {
+    fs.writeFileSync("cursor.txt", jetstream.cursor!.toString(), "utf8");
+  } catch (error) {
+    logger.error(`Error shutting down gracefully: ${error}`);
+    process.exit(1);
   }
 }
 
-// Call the function with the path to your file
-const filePath = 'dids.txt';
-readFileLineByLine(filePath).catch((err) => console.error(err));
+process.on("SIGINT", shutdown);
+process.on("SIGTERM", shutdown);
+
